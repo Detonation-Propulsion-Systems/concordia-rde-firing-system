@@ -6,6 +6,7 @@ int BubblePin=9; //Detonation signal pin
 
 int ForwardPin=2;
 int RewindPin=4;
+int Trigger=3;
 
 bool checkGreen=LOW;
 bool checkYel=LOW;
@@ -23,6 +24,7 @@ void setup() {
 
   pinMode(ForwardPin,INPUT);
   pinMode(RewindPin,INPUT);
+  pinMode(Trigger,INPUT);
 }
 
 //LED colour code:
@@ -30,6 +32,7 @@ void setup() {
 //Yellow: Intermediate step (also safe)
 //Red: Intermediate step (also safe)
 //Red+Green: Firing
+//Yellow+Red: Unexpected Trigger activation. Firing system frozen until trigger switched off.
 
 void loop() {
   digitalWrite(GreenLed,HIGH);
@@ -37,7 +40,11 @@ void loop() {
   digitalWrite(RedLed,LOW);
   digitalWrite(ValvePin,HIGH); //This is a low valve, meaning it opens when on low.
   digitalWrite(BubblePin,LOW);
-  
+  while(digitalRead(Trigger)==HIGH){//this while loop added to original code. Timing arduino can't advance if trigger is on
+    digitalWrite(YelLed, HIGH);
+    digitalWrite(RedLed, HIGH);
+    digitalWrite(GreenLed, LOW);
+     }
   if(digitalRead(ForwardPin)==HIGH){
     checkGreen=HIGH;
     delay(300);
@@ -49,7 +56,13 @@ void loop() {
     digitalWrite(RedLed,LOW);
     digitalWrite(ValvePin,HIGH);
     digitalWrite(BubblePin,LOW);
-    
+    if(digitalRead(Trigger)==HIGH){
+      while(digitalRead(Trigger)==HIGH){
+        digitalWrite(YelLed, HIGH);
+        digitalWrite(RedLed, HIGH);
+        digitalWrite(GreenLed, LOW);
+      }
+    }
     if(digitalRead(ForwardPin)==HIGH){
       checkYel=HIGH;
       delay(300);
@@ -65,7 +78,7 @@ void loop() {
       digitalWrite(ValvePin,HIGH);
       digitalWrite(BubblePin,LOW);
       
-      if(digitalRead(ForwardPin)==HIGH){
+      if(digitalRead(Trigger)==HIGH){ //was forwardpin
         checkRed=HIGH;
         delay(300);
       }
