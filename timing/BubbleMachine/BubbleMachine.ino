@@ -14,6 +14,7 @@ bool checkRed=LOW;
 
 unsigned long TimeIni=0;
 unsigned long Time=0;
+int looptime   = 5000; //Trigger length
 
 void setup() {
   pinMode(GreenLed,OUTPUT);
@@ -100,13 +101,15 @@ void loop() {
         while(checkRed==HIGH){ // This loops waits before sending trigger signal to bubble machine.
           if(digitalRead(RewindPin)==HIGH){
             
-            digitalWrite(GreenLed,LOW);
+            digitalWrite(GreenLed,HIGH);
             digitalWrite(YelLed,LOW);
-            digitalWrite(RedLed,HIGH);
+            digitalWrite(RedLed,LOW);
             digitalWrite(ValvePin,HIGH); //Right away sets those values to the precedent to stop everything as fast as possible for safety
             digitalWrite(BubblePin,LOW);
             
             checkRed=LOW;
+            checkYel=LOW;
+            checkGreen=LOW;
             delay(300);
           }
           
@@ -128,7 +131,19 @@ void loop() {
           digitalWrite(BubblePin,HIGH); //The detonation signal is sent
 
           Time=millis()-100; //The signal is sent for maximum 100ms
-          
+          if(digitalRead(RewindPin)==HIGH){
+            
+            digitalWrite(GreenLed,HIGH);
+            digitalWrite(YelLed,LOW);
+            digitalWrite(RedLed,LOW);
+            digitalWrite(ValvePin,HIGH); //Right away sets those values to the precedent to stop everything as fast as possible for safety
+            digitalWrite(BubblePin,LOW);
+            
+            checkRed=LOW;
+            checkYel=LOW;
+            checkGreen=LOW;
+            delay(300);
+          }
           if(Time>=TimeIni){
             break;
           }
@@ -138,7 +153,7 @@ void loop() {
         
         while(checkRed==HIGH){ // This loops wait before closing the valve.
 
-          Time=millis()-5000; //The entirety of the loop lasts maximum five seconds.
+          Time=millis()-looptime; //The entirety of the loop lasts maximum five seconds.
           
           if(Time>=TimeIni){
             checkGreen=LOW;
@@ -148,16 +163,17 @@ void loop() {
           }
 
           if(digitalRead(RewindPin)==HIGH){
-            digitalWrite(GreenLed,LOW);
+            
+            digitalWrite(GreenLed,HIGH);
             digitalWrite(YelLed,LOW);
-            digitalWrite(RedLed,HIGH);
+            digitalWrite(RedLed,LOW);
             digitalWrite(ValvePin,HIGH); //Right away sets those values to the precedent to stop everything as fast as possible for safety
             digitalWrite(BubblePin,LOW);
-
+            
             checkRed=LOW;
-                        
+            checkYel=LOW;
+            checkGreen=LOW;
             delay(300);
-            break;
           }
         }
       }
