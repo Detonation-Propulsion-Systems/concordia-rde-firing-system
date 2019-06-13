@@ -3,9 +3,12 @@ int reset        = 3;
 int warninglight = 11;
 int go           = 12; //Defines all used ports
 
-int Pmax         = 25; //Maximum desired blast chamber pressure
-int sensor       = 667;//Max pressure reading from transducer
-double offset    = 0.0881559;//Offset to read atmospheric. Recalibrate for new transducer
+int Pmax         = 25; //Maximum desired blast chamber pressure, in psi
+int sensor       = 30;//Max pressure reading from transducer, in psi
+double offset    = 0.00;//Offset to read atmospheric. in V Recalibrate for new transducer
+//offset values
+//667 psi transducer, offset = 0.0881559
+//30 psi transducer, offset = ??
 double rawdata;
 double voltage;
 double psi;
