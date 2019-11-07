@@ -14,7 +14,8 @@ bool checkRed=LOW;
 
 unsigned long TimeIni=0;
 unsigned long Time=0;
-int looptime   = 5000; //Trigger length
+int looptime   = 2000; //Trigger length
+int ignition   = 100; //Ignition delay
 
 void setup() {
   pinMode(GreenLed,OUTPUT);
@@ -124,6 +125,7 @@ void loop() {
         TimeIni=millis(); //Resets initial time
         
         while(checkRed==HIGH){ // This loop sends the trigger signal to the bubble machine while the valve is still opened.
+          delay(ignition);
           digitalWrite(GreenLed,HIGH);
           digitalWrite(YelLed,LOW);
           digitalWrite(RedLed,HIGH);
