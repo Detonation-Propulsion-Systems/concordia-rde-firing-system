@@ -1,4 +1,4 @@
-#Concordia RDE Firint System
+#Concordia RDE Firing System
 
 The firing system for the Concordia RDE setup is driven by arduinos.
 
