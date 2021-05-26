@@ -14,7 +14,7 @@ bool checkRed=LOW;
 
 unsigned long TimeIni=0;
 unsigned long Time=0;
-int looptime   = 2000; //Trigger length
+int looptime   = 500; //Trigger length
 int ignition   = 100; //Ignition delay
 
 void setup() {
