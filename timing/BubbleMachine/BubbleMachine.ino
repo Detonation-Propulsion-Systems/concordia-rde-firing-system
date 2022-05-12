@@ -14,8 +14,8 @@ bool checkRed=LOW;
 
 unsigned long TimeIni=0;
 unsigned long Time=0;
-int looptime   = 500; //Trigger length
-int ignition   = 100; //Ignition delay
+int looptime   = 600; //Trigger length
+int ignition   = 400; //Ignition delay
 
 void setup() {
   pinMode(GreenLed,OUTPUT);
