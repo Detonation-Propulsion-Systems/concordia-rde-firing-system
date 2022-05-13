@@ -7,6 +7,7 @@ int BubblePin=9; //Detonation signal pin
 int ForwardPin=2;
 int RewindPin=4;
 int Trigger=3;
+int IGN = 7; //Ignition trigger for scary box
 
 bool checkGreen=LOW;
 bool checkYel=LOW;
@@ -14,8 +15,8 @@ bool checkRed=LOW;
 
 unsigned long TimeIni=0;
 unsigned long Time=0;
-int looptime   = 600; //Trigger length
-int ignition   = 400; //Ignition delay
+int looptime   = 620; //Trigger length
+int ignition   = 420; //Ignition delay
 
 void setup() {
   pinMode(GreenLed,OUTPUT);
@@ -115,7 +116,6 @@ void loop() {
           }
           
           Time=millis()-100; //Loop lasts about a tenth a second (depending on computational time).
-          
           if(Time>=TimeIni){
             break;
           }
@@ -131,6 +131,7 @@ void loop() {
           digitalWrite(RedLed,HIGH);
           digitalWrite(ValvePin,LOW);
           digitalWrite(BubblePin,HIGH); //The detonation signal is sent
+          digitalWrite(IGN,HIGH); //This sends the trigger signal to the scary box, if connected.
 
           Time=millis()-100; //The signal is sent for maximum 100ms
           if(digitalRead(RewindPin)==HIGH){
@@ -140,6 +141,7 @@ void loop() {
             digitalWrite(RedLed,LOW);
             digitalWrite(ValvePin,HIGH); //Right away sets those values to the precedent to stop everything as fast as possible for safety
             digitalWrite(BubblePin,LOW);
+            digitalWrite(IGN,LOW);
             
             checkRed=LOW;
             checkYel=LOW;
@@ -152,6 +154,7 @@ void loop() {
         }
         
         digitalWrite(BubblePin,LOW); //detonation signal is off.
+        digitalWrite(IGN,LOW);
         
         while(checkRed==HIGH){ // This loops wait before closing the valve.
 
@@ -171,6 +174,7 @@ void loop() {
             digitalWrite(RedLed,LOW);
             digitalWrite(ValvePin,HIGH); //Right away sets those values to the precedent to stop everything as fast as possible for safety
             digitalWrite(BubblePin,LOW);
+            digitalWrite(IGN,LOW);
             
             checkRed=LOW;
             checkYel=LOW;
