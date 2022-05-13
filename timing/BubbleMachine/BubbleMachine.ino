@@ -24,6 +24,7 @@ void setup() {
   pinMode(RedLed,OUTPUT);
   pinMode(BubblePin,OUTPUT);
   pinMode(ValvePin,OUTPUT);
+  pinMode(IGN,OUTPUT);
 
   pinMode(ForwardPin,INPUT);
   pinMode(RewindPin,INPUT);
@@ -98,7 +99,7 @@ void loop() {
         digitalWrite(ValvePin,LOW); //The valve is now opened
         digitalWrite(BubblePin,LOW);
 
-        TimeIni=millis(); //Checks what initial time is
+        //TimeIni=millis(); //Checks what initial time is
 
         while(checkRed==HIGH){ // This loops waits before sending trigger signal to bubble machine.
           if(digitalRead(RewindPin)==HIGH){
@@ -115,10 +116,11 @@ void loop() {
             delay(300);
           }
           
-          Time=millis()-100; //Loop lasts about a tenth a second (depending on computational time).
-          if(Time>=TimeIni){
-            break;
-          }
+          //Time=millis()-100; //Loop lasts about a tenth a second (depending on computational time)
+          //if(Time>=TimeIni){
+          delay(10); //Test
+          break;
+          //}
         }
 
 
@@ -132,8 +134,9 @@ void loop() {
           digitalWrite(ValvePin,LOW);
           digitalWrite(BubblePin,HIGH); //The detonation signal is sent
           digitalWrite(IGN,HIGH); //This sends the trigger signal to the scary box, if connected.
-
-          Time=millis()-100; //The signal is sent for maximum 100ms
+          
+          //Time=millis()-500; //The signal is sent for maximum 500ms
+          
           if(digitalRead(RewindPin)==HIGH){
             
             digitalWrite(GreenLed,HIGH);
@@ -148,11 +151,11 @@ void loop() {
             checkGreen=LOW;
             delay(300);
           }
-          if(Time>=TimeIni){
-            break;
-          }
+          //if(Time>=TimeIni){
+          delay(looptime-ignition);
+          break;
+          //}
         }
-        
         digitalWrite(BubblePin,LOW); //detonation signal is off.
         digitalWrite(IGN,LOW);
         
