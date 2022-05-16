@@ -65,7 +65,7 @@ void loop() {
   digitalWrite(valvePin, HIGH); //This is a low valve, meaning it opens when on low.
   digitalWrite(bubblePin, LOW);
 
-  if (digitalRead(trigger) == HIGH) { //Timing Arduino can't advance if the trigger is on.
+  while (digitalRead(trigger) == HIGH) { //Timing Arduino can't advance if the trigger is on.
 
     unexpectedTrigger();
   }
@@ -73,6 +73,7 @@ void loop() {
   if (digitalRead(forwardPin) == HIGH) {
 
     checkGreen = HIGH;
+    delay(250);
   }
 
   while (checkGreen == HIGH) {
@@ -91,10 +92,12 @@ void loop() {
     if (digitalRead(forwardPin) == HIGH) {
 
       checkYel = HIGH;
+      delay(250);
     }
     if (digitalRead(rewindPin) == HIGH) {
 
       checkGreen = LOW;
+      delay(250);
     }
 
     while (checkYel == HIGH) {
@@ -108,10 +111,12 @@ void loop() {
       if (digitalRead(trigger) == HIGH) {
 
         checkRed = HIGH;
+        delay(250);
       }
       if (digitalRead(rewindPin) == HIGH) {
 
         checkYel = LOW;
+        delay(250);
       }
 
       if (checkRed == HIGH) {
@@ -122,6 +127,8 @@ void loop() {
         digitalWrite(valvePin, LOW); //The valves are now opened.
         digitalWrite(bubblePin, LOW);
 
+        //The rewind button on the remote has to be held down for manualAbort to take effect.
+        
         if (digitalRead(rewindPin) == HIGH) {
 
           manualAbort();
