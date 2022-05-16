@@ -39,18 +39,12 @@ void setup() {
 
 void unexpectedTrigger() { //Freezes the timing Arduino until the trigger is switched off.
 
-  digitalWrite(greenLed, LOW);
-  digitalWrite(yelLed, HIGH);
-  digitalWrite(redLed, HIGH);
+  PORTB = B00011100;
 }
 
 void manualAbort() { //Disarms the system by resetting all control pins to their initial, safe value.
 
-  digitalWrite(greenLed, HIGH);
-  digitalWrite(yelLed, LOW);
-  digitalWrite(redLed, LOW);
-  digitalWrite(valvePin, HIGH);
-  digitalWrite(bubblePin, LOW);
+  PORTB = B00100100;
 
   checkRed = LOW;
   checkYel = LOW;
@@ -59,11 +53,7 @@ void manualAbort() { //Disarms the system by resetting all control pins to their
 
 void loop() {
 
-  digitalWrite(greenLed, HIGH);
-  digitalWrite(yelLed, LOW);
-  digitalWrite(redLed, LOW);
-  digitalWrite(valvePin, HIGH); //This is a low valve, meaning it opens when on low.
-  digitalWrite(bubblePin, LOW);
+  PORTB = B00100100;
 
   while (digitalRead(trigger) == HIGH) { //Timing Arduino can't advance if the trigger is on.
 
@@ -78,11 +68,7 @@ void loop() {
 
   while (checkGreen == HIGH) {
 
-    digitalWrite(greenLed, LOW);
-    digitalWrite(yelLed, HIGH);
-    digitalWrite(redLed, LOW);
-    digitalWrite(valvePin, HIGH);
-    digitalWrite(bubblePin, LOW);
+    PORTB = B00010100;
 
     if (digitalRead(trigger) == HIGH) {
 
@@ -102,11 +88,7 @@ void loop() {
 
     while (checkYel == HIGH) {
 
-      digitalWrite(greenLed, LOW);
-      digitalWrite(yelLed, LOW);
-      digitalWrite(redLed, HIGH);
-      digitalWrite(valvePin, HIGH);
-      digitalWrite(bubblePin, LOW);
+      PORTB = B00001100;
 
       if (digitalRead(trigger) == HIGH) {
 
@@ -121,11 +103,7 @@ void loop() {
 
       if (checkRed == HIGH) {
 
-        digitalWrite(greenLed, HIGH);
-        digitalWrite(yelLed, LOW);
-        digitalWrite(redLed, HIGH);
-        digitalWrite(valvePin, LOW); //The valves are now opened.
-        digitalWrite(bubblePin, LOW);
+        PORTB = 00101000; //The valves are now open.
 
         //The rewind button on the remote has to be held down for manualAbort to take effect.
         
@@ -143,11 +121,7 @@ void loop() {
             manualAbort();
           }
 
-          digitalWrite(greenLed, HIGH);
-          digitalWrite(yelLed, LOW);
-          digitalWrite(redLed, HIGH);
-          digitalWrite(valvePin, LOW);
-          digitalWrite(bubblePin, HIGH); //The ignition signal is sent.
+          PORTB = B00101010; //The ignition signal is sent.
 
           if (digitalRead(rewindPin) == HIGH) {
 
