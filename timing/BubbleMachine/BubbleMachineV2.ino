@@ -3,6 +3,7 @@ int yelLed = 12;
 int redLed = 11;
 int valvePin = 10; //Actuator signal pin.
 int bubblePin = 9; //Ignition signal pin.
+int noPin = 8; //Normally open solenoid valves pin.
 
 //Trigger remote pins
 
@@ -14,6 +15,7 @@ bool checkGreen = LOW;
 bool checkYel = LOW;
 bool checkRed = LOW;
 
+int noDelay = 100; //Delay between the NO valves closing and the NC valves & actuators opening (SUBJECT TO CHANGE).
 int triggerTime = 620; //Trigger length.
 int ignitionTime = 420; //Ignition delay after the start of the trigger.
 
@@ -24,6 +26,7 @@ void setup() {
   pinMode(redLed, OUTPUT);
   pinMode(bubblePin, OUTPUT);
   pinMode(valvePin, OUTPUT);
+  pinMode(noPin, OUTPUT);
 
   pinMode(forwardPin, INPUT);
   pinMode(rewindPin, INPUT);
@@ -103,10 +106,19 @@ void loop() {
 
       if (checkRed == HIGH) {
 
-        PORTB = 00101000; //The valves are now open.
+        PORTB = B00101101; //The NO solenoid valves are closed first.
+
+        delay(noDelay);
 
         //The rewind button on the remote has to be held down for manualAbort to take effect.
-        
+
+        if (digitalRead(rewindPin) == HIGH) {
+
+          manualAbort();
+        }
+
+        PORTB = B00101001; //The NC solenoid valves and actuators are now open.
+
         if (digitalRead(rewindPin) == HIGH) {
 
           manualAbort();
@@ -121,7 +133,7 @@ void loop() {
             manualAbort();
           }
 
-          PORTB = B00101010; //The ignition signal is sent.
+          PORTB = B00101011; //The ignition signal is sent.
 
           if (digitalRead(rewindPin) == HIGH) {
 
