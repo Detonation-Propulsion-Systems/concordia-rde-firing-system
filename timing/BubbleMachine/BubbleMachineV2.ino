@@ -15,7 +15,7 @@ bool checkGreen = LOW;
 bool checkYel = LOW;
 bool checkRed = LOW;
 
-int noDelay = 100; //Delay between the NO valves closing and the NC valves & actuators opening (SUBJECT TO CHANGE).
+int noDelay = 1000; //Delay between the NO valves closing and the NC valves & actuators opening (SUBJECT TO CHANGE).
 int triggerTime = 620; //Trigger length.
 int ignitionTime = 420; //Ignition delay after the start of the trigger.
 
@@ -42,12 +42,12 @@ void setup() {
 
 void unexpectedTrigger() { //Freezes the timing Arduino until the trigger is switched off.
 
-  PORTB = B00011100;
+  PORTB = B00011101;
 }
 
 void manualAbort() { //Disarms the system by resetting all control pins to their initial, safe value.
 
-  PORTB = B00100100;
+  PORTB = B00100101;
 
   checkRed = LOW;
   checkYel = LOW;
@@ -56,7 +56,7 @@ void manualAbort() { //Disarms the system by resetting all control pins to their
 
 void loop() {
 
-  PORTB = B00100100;
+  PORTB = B00100101;
 
   while (digitalRead(trigger) == HIGH) { //Timing Arduino can't advance if the trigger is on.
 
@@ -71,7 +71,7 @@ void loop() {
 
   while (checkGreen == HIGH) {
 
-    PORTB = B00010100;
+    PORTB = B00010101;
 
     if (digitalRead(trigger) == HIGH) {
 
@@ -91,7 +91,7 @@ void loop() {
 
     while (checkYel == HIGH) {
 
-      PORTB = B00001100;
+      PORTB = B00001101;
 
       if (digitalRead(trigger) == HIGH) {
 
@@ -106,7 +106,7 @@ void loop() {
 
       if (checkRed == HIGH) {
 
-        PORTB = B00101101; //The NO solenoid valves are closed first.
+        PORTB = B00101100; //The NO solenoid valves are closed first.
 
         delay(noDelay);
 
@@ -117,7 +117,7 @@ void loop() {
           manualAbort();
         }
 
-        PORTB = B00101001; //The NC solenoid valves and actuators are now open.
+        PORTB = B00101000; //The NC solenoid valves and actuators are now open.
 
         if (digitalRead(rewindPin) == HIGH) {
 
@@ -133,7 +133,7 @@ void loop() {
             manualAbort();
           }
 
-          PORTB = B00101011; //The ignition signal is sent.
+          PORTB = B00101010; //The ignition signal is sent.
 
           if (digitalRead(rewindPin) == HIGH) {
 
