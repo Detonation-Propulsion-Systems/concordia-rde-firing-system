@@ -15,8 +15,8 @@ bool checkGreen = LOW;
 bool checkYel = LOW;
 bool checkRed = LOW;
 
-int noDelay = 1000; //Delay between the NO valves closing and the NC valves & actuators opening (SUBJECT TO CHANGE).
-int triggerTime = 620; //Trigger length.
+int noDelay = 500; //Delay between the NO valves closing and the NC valves & actuators opening (SUBJECT TO CHANGE).
+int triggerTime = 10620; //Trigger length.
 int ignitionTime = 420; //Ignition delay after the start of the trigger.
 
 void setup() {
