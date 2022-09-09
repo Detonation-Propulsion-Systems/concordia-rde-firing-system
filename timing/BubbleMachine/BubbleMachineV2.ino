@@ -14,7 +14,7 @@ bool checkGreen = LOW;
 bool checkYel = LOW;
 bool checkRed = LOW;
 
-int triggerTime = 1000; //Trigger length.
+int triggerTime = 10000; //Trigger length.
 int ignitionTime = 420; //Ignition delay after the start of the trigger.
 
 void setup() {
@@ -114,6 +114,8 @@ void loop() {
             PORTB = B00101010; //The ignition signal is sent.
 
             delay(triggerTime - ignitionTime);
+
+            break;
         }
 
         //After the test time is over, reset all pins to their original state by calling the manualAbort function.
