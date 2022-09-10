@@ -14,8 +14,12 @@ bool checkGreen = LOW;
 bool checkYel = LOW;
 bool checkRed = LOW;
 
-int triggerTime = 10000; //Trigger length.
+int buttonDelay = 250; //Time you have to press a button on the remote for an action to ensue.
+int triggerTime = 1000; //Trigger length.
 int ignitionTime = 420; //Ignition delay after the start of the trigger.
+
+unsigned long startTime; //Time associated to the reading of the millis() function when the test starts.
+unsigned long runTime; //Placeholder for the millis() function to use for comparison with trigger and ignition time.
 
 void setup() {
 
@@ -42,7 +46,7 @@ void unexpectedTrigger() { //Freezes the timing Arduino until the trigger is swi
   PORTB = B00011100;
 }
 
-void manualAbort() { //Disarms the system by resetting all control pins to their initial, safe value.
+void manualAbort() { //Disarms the system by resetting all control pins to their initial, safe state.
 
   PORTB = B00100100;
 
@@ -63,7 +67,7 @@ void loop() {
   if (digitalRead(forwardPin) == HIGH) {
 
     checkGreen = HIGH;
-    delay(250);
+    delay(buttonDelay);
   }
 
   while (checkGreen == HIGH) {
@@ -78,12 +82,12 @@ void loop() {
     if (digitalRead(forwardPin) == HIGH) {
 
       checkYel = HIGH;
-      delay(250);
+      delay(buttonDelay);
     }
     if (digitalRead(rewindPin) == HIGH) {
 
       checkGreen = LOW;
-      delay(250);
+      delay(buttonDelay);
     }
 
     while (checkYel == HIGH) {
@@ -93,35 +97,52 @@ void loop() {
       if (digitalRead(trigger) == HIGH) {
 
         checkRed = HIGH;
-        delay(250);
+        delay(buttonDelay);
       }
       if (digitalRead(rewindPin) == HIGH) {
 
         checkYel = LOW;
-        delay(250);
+        delay(buttonDelay);
       }
-      
+
       if (checkRed == HIGH) {
 
-        while (digitalRead(rewindPin) == LOW) {
-            
-            //The rewind button on the remote has to be held down for manualAbort to take effect.
+        startTime, runTime = millis(); //Define the start time and the initial value of the run time.
+
+        while (runTime - startTime < ignitionTime) {
+
+          //The rewind button on the remote has to be held down for manualAbort to take effect.
+
+          if (digitalRead(rewindPin) == HIGH) {
+
+            manualAbort();
+          }
+          else {
 
             PORTB = B00101000; //The actuators are now open.
+          }
 
-            delay(ignitionTime); //Wait before ignition.
+          runTime = millis();
+        }
+
+        while (runTime - startTime <= triggerTime) {
+
+          if (digitalRead(rewindPin) == HIGH) {
+
+            manualAbort();
+          }
+          else {
 
             PORTB = B00101010; //The ignition signal is sent.
+          }
 
-            delay(triggerTime - ignitionTime);
-
-            break;
+          runTime = millis();
         }
 
         //After the test time is over, reset all pins to their original state by calling the manualAbort function.
 
         manualAbort();
-        }
       }
     }
   }
+}
