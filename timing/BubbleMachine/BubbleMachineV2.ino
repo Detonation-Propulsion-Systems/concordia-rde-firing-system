@@ -84,6 +84,7 @@ void loop() {
       checkYel = HIGH;
       delay(buttonDelay);
     }
+    
     if (digitalRead(rewindPin) == HIGH) {
 
       checkGreen = LOW;
@@ -99,13 +100,14 @@ void loop() {
         checkRed = HIGH;
         delay(buttonDelay);
       }
+      
       if (digitalRead(rewindPin) == HIGH) {
 
         checkYel = LOW;
         delay(buttonDelay);
       }
 
-      if (checkRed == HIGH) {
+      while (checkRed == HIGH) {
 
         startTime, runTime = millis(); //Define the start time and the initial value of the run time.
 
@@ -113,13 +115,12 @@ void loop() {
 
           //The rewind button on the remote has to be held down for manualAbort to take effect.
 
+          PORTB = B00101000; //The actuators are now open.
+          
           if (digitalRead(rewindPin) == HIGH) {
 
             manualAbort();
-          }
-          else {
-
-            PORTB = B00101000; //The actuators are now open.
+            break;
           }
 
           runTime = millis();
@@ -127,13 +128,12 @@ void loop() {
 
         while (runTime - startTime <= triggerTime) {
 
+          PORTB = B00101010; //The ignition signal is sent.
+          
           if (digitalRead(rewindPin) == HIGH) {
 
             manualAbort();
-          }
-          else {
-
-            PORTB = B00101010; //The ignition signal is sent.
+            break;
           }
 
           runTime = millis();
