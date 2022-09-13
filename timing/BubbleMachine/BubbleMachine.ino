@@ -1,190 +1,148 @@
-int GreenLed=13;
-int YelLed=12;
-int RedLed=11;
-int ValvePin=10;
-int BubblePin=9; //Detonation signal pin
+int greenLed = 13;
+int yelLed = 12;
+int redLed = 11;
+int valvePin = 10; //Actuator signal pin.
+int bubblePin = 9; //Ignition signal pin.
 
-int ForwardPin=2;
-int RewindPin=4;
-int Trigger=3;
-int IGN = 7; //Ignition trigger for scary box
+//Trigger remote pins
 
-bool checkGreen=LOW;
-bool checkYel=LOW;
-bool checkRed=LOW;
+int forwardPin = 2;
+int rewindPin = 4;
+int trigger = 3;
 
-unsigned long TimeIni=0;
-unsigned long Time=0;
-int looptime   = 620; //Trigger length
-int ignition   = 420; //Ignition delay
+bool checkGreen = LOW;
+bool checkYel = LOW;
+bool checkRed = LOW;
+
+int buttonDelay = 250; //Time you have to press a button on the remote for an action to ensue.
+int triggerTime = 10000; //Trigger length.
+int ignitionTime = 5000; //Ignition delay after the start of the trigger.
+
+unsigned long startTime; //Time associated to the reading of the millis() function when the test starts.
+unsigned long runTime; //Placeholder for the millis() function to use for comparison with trigger and ignition time.
 
 void setup() {
-  pinMode(GreenLed,OUTPUT);
-  pinMode(YelLed,OUTPUT);
-  pinMode(RedLed,OUTPUT);
-  pinMode(BubblePin,OUTPUT);
-  pinMode(ValvePin,OUTPUT);
-  pinMode(IGN,OUTPUT);
 
-  pinMode(ForwardPin,INPUT);
-  pinMode(RewindPin,INPUT);
-  pinMode(Trigger,INPUT);
+  pinMode(greenLed, OUTPUT);
+  pinMode(yelLed, OUTPUT);
+  pinMode(redLed, OUTPUT);
+  pinMode(bubblePin, OUTPUT);
+  pinMode(valvePin, OUTPUT);
+
+  pinMode(forwardPin, INPUT);
+  pinMode(rewindPin, INPUT);
+  pinMode(trigger, INPUT);
 }
 
-//LED colour code:
-//Green: Safe-Initial step
+//LED colour code
+//Green: Safe-initial step
 //Yellow: Intermediate step (also safe)
 //Red: Intermediate step (also safe)
-//Red+Green: Firing
-//Yellow+Red: Unexpected Trigger activation. Firing system frozen until trigger switched off.
+//Red + Green: Firing
+//Yellow + Red: Unexpected trigger activation. Firing system frozen until trigger switched off.
+
+void unexpectedTrigger() { //Freezes the timing Arduino until the trigger is switched off.
+
+  PORTB = B00011100;
+}
+
+void manualAbort() { //Disarms the system by resetting all control pins to their initial, safe state.
+
+  PORTB = B00100100;
+
+  checkRed = LOW;
+  checkYel = LOW;
+  checkGreen = LOW;
+}
 
 void loop() {
-  digitalWrite(GreenLed,HIGH);
-  digitalWrite(YelLed,LOW);
-  digitalWrite(RedLed,LOW);
-  digitalWrite(ValvePin,HIGH); //This is a low valve, meaning it opens when on low.
-  digitalWrite(BubblePin,LOW);
-  while(digitalRead(Trigger)==HIGH){//this while loop added to original code. Timing arduino can't advance if trigger is on
-    digitalWrite(YelLed, HIGH);
-    digitalWrite(RedLed, HIGH);
-    digitalWrite(GreenLed, LOW);
-     }
-  if(digitalRead(ForwardPin)==HIGH){
-    checkGreen=HIGH;
-    delay(300);
-   }
 
-  while(checkGreen==HIGH){
-    digitalWrite(GreenLed,LOW);
-    digitalWrite(YelLed,HIGH);
-    digitalWrite(RedLed,LOW);
-    digitalWrite(ValvePin,HIGH);
-    digitalWrite(BubblePin,LOW);
-    if(digitalRead(Trigger)==HIGH){
-      while(digitalRead(Trigger)==HIGH){
-        digitalWrite(YelLed, HIGH);
-        digitalWrite(RedLed, HIGH);
-        digitalWrite(GreenLed, LOW);
-      }
+  PORTB = B00100100;
+
+  while (digitalRead(trigger) == HIGH) { //Timing Arduino can't advance if the trigger is on.
+
+    unexpectedTrigger();
+  }
+
+  if (digitalRead(forwardPin) == HIGH) {
+
+    checkGreen = HIGH;
+    delay(buttonDelay);
+  }
+
+  while (checkGreen == HIGH) {
+
+    PORTB = B00010100;
+
+    if (digitalRead(trigger) == HIGH) {
+
+      unexpectedTrigger();
     }
-    if(digitalRead(ForwardPin)==HIGH){
-      checkYel=HIGH;
-      delay(300);
+
+    if (digitalRead(forwardPin) == HIGH) {
+
+      checkYel = HIGH;
+      delay(buttonDelay);
     }
-    if(digitalRead(RewindPin)==HIGH){
-      checkGreen=LOW;
-      delay(300);
+    
+    if (digitalRead(rewindPin) == HIGH) {
+
+      checkGreen = LOW;
+      delay(buttonDelay);
     }
-     while(checkYel==HIGH){
-      digitalWrite(GreenLed,LOW);
-      digitalWrite(YelLed,LOW);
-      digitalWrite(RedLed,HIGH);
-      digitalWrite(ValvePin,HIGH);
-      digitalWrite(BubblePin,LOW);
-      
-      if(digitalRead(Trigger)==HIGH){ //was forwardpin
-        checkRed=HIGH;
-        delay(300);
-      }
-      
-      if(digitalRead(RewindPin)==HIGH){
-        checkYel=LOW;
-        delay(300);
-      }
-      
-      while(checkRed==HIGH){
-        digitalWrite(GreenLed,HIGH);
-        digitalWrite(YelLed,LOW);
-        digitalWrite(RedLed,HIGH);
-        digitalWrite(ValvePin,LOW); //The valve is now opened
-        digitalWrite(BubblePin,LOW);
 
-        //TimeIni=millis(); //Checks what initial time is
+    while (checkYel == HIGH) {
 
-        while(checkRed==HIGH){ // This loops waits before sending trigger signal to bubble machine.
-          if(digitalRead(RewindPin)==HIGH){
-            
-            digitalWrite(GreenLed,HIGH);
-            digitalWrite(YelLed,LOW);
-            digitalWrite(RedLed,LOW);
-            digitalWrite(ValvePin,HIGH); //Right away sets those values to the precedent to stop everything as fast as possible for safety
-            digitalWrite(BubblePin,LOW);
-            
-            checkRed=LOW;
-            checkYel=LOW;
-            checkGreen=LOW;
-            delay(300);
-          }
-          
-          //Time=millis()-100; //Loop lasts about a tenth a second (depending on computational time)
-          //if(Time>=TimeIni){
-          delay(10); //Test
-          break;
-          //}
-        }
+      PORTB = B00001100;
 
+      if (digitalRead(trigger) == HIGH) {
 
-        TimeIni=millis(); //Resets initial time
+        checkRed = HIGH;
+        delay(buttonDelay);
+
+        //Define the start time and the initial value of the run time.
         
-        while(checkRed==HIGH){ // This loop sends the trigger signal to the bubble machine while the valve is still opened.
-          delay(ignition);
-          digitalWrite(GreenLed,HIGH);
-          digitalWrite(YelLed,LOW);
-          digitalWrite(RedLed,HIGH);
-          digitalWrite(ValvePin,LOW);
-          digitalWrite(BubblePin,HIGH); //The detonation signal is sent
-          digitalWrite(IGN,HIGH); //This sends the trigger signal to the scary box, if connected.
-          
-          //Time=millis()-500; //The signal is sent for maximum 500ms
-          
-          if(digitalRead(RewindPin)==HIGH){
-            
-            digitalWrite(GreenLed,HIGH);
-            digitalWrite(YelLed,LOW);
-            digitalWrite(RedLed,LOW);
-            digitalWrite(ValvePin,HIGH); //Right away sets those values to the precedent to stop everything as fast as possible for safety
-            digitalWrite(BubblePin,LOW);
-            digitalWrite(IGN,LOW);
-            
-            checkRed=LOW;
-            checkYel=LOW;
-            checkGreen=LOW;
-            delay(300);
-          }
-          //if(Time>=TimeIni){
-          delay(looptime-ignition);
-          break;
-          //}
-        }
-        digitalWrite(BubblePin,LOW); //detonation signal is off.
-        digitalWrite(IGN,LOW);
-        
-        while(checkRed==HIGH){ // This loops wait before closing the valve.
+        startTime = millis(); 
+        runTime = millis();
+      }
+      
+      if (digitalRead(rewindPin) == HIGH) {
 
-          Time=millis()-looptime; //The entirety of the loop lasts maximum five seconds.
+        checkYel = LOW;
+        delay(buttonDelay);
+      }
+
+      while (checkRed == HIGH) {
+
+        while (runTime - startTime < ignitionTime) {
+
+          PORTB = B00101000; //The actuators are now open.
           
-          if(Time>=TimeIni){
-            checkGreen=LOW;
-            checkYel=LOW;
-            checkRed=LOW;
+          if (digitalRead(rewindPin) == HIGH) {
+
+            manualAbort();
             break;
           }
 
-          if(digitalRead(RewindPin)==HIGH){
-            
-            digitalWrite(GreenLed,HIGH);
-            digitalWrite(YelLed,LOW);
-            digitalWrite(RedLed,LOW);
-            digitalWrite(ValvePin,HIGH); //Right away sets those values to the precedent to stop everything as fast as possible for safety
-            digitalWrite(BubblePin,LOW);
-            digitalWrite(IGN,LOW);
-            
-            checkRed=LOW;
-            checkYel=LOW;
-            checkGreen=LOW;
-            delay(300);
-          }
+          runTime = millis();
         }
+
+        while (runTime - startTime <= triggerTime) {
+
+          PORTB = B00101010; //The ignition signal is sent.
+          
+          if (digitalRead(rewindPin) == HIGH) {
+
+            manualAbort();
+            break;
+          }
+
+          runTime = millis();
+        }
+
+        //After the test time is over, reset all pins to their original state by calling the manualAbort function.
+
+        manualAbort();
       }
     }
   }
