@@ -1,15 +1,15 @@
-int greenLed = 13;
-int yelLed = 12;
-int redLed = 11;
-int valvePin = 10; //Actuator signal pin.  State Low, i.e. pin bit = 0 == VALVE OPEN AND FLOW
+int greenLed  = 13;
+int yelLed    = 12;
+int redLed    = 11;
+int valvePin  = 10; //Actuator signal pin.  State Low, i.e. pin bit = 0 == VALVE OPEN AND FLOW
 int bubblePin = 9; //Ignition signal pin.
-int CO2Pin    = 7; //N.O. solenoid for CO2 flow  State Low, i.e. pin bit = 0 == VALVE CLOSED AND NO FLOW
+int CO2Pin    = 8; //N.O. solenoid for CO2 flow  State Low, i.e. pin bit = 0 == VALVE CLOSED AND NO FLOW
 
 //Trigger remote pins
 
 int forwardPin = 2;
-int rewindPin = 4;
-int trigger = 3;
+int rewindPin  = 4;
+int trigger    = 3;
 
 bool checkGreen = LOW;
 bool checkYel   = LOW;
