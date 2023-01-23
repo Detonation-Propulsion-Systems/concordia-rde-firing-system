@@ -18,7 +18,8 @@ bool checkRed   = LOW;
 int buttonDelay  = 250; //Time you have to press a button on the remote for an action to ensue.
 int triggerTime  = 2000; //Trigger length i.e. length of actuation of the valves.
 int ignitionTime = 1000; //Ignition delay after the start of the trigger.
-int CO2InjTime   = 500; //Duration CO2 is flushed to inert the sandworm environment
+int ignitionDuration = 20; //Pulse length for ignition signal. (not used yet)
+int CO2InjTime   = 3000; //Duration CO2 is flushed to inert the sandworm environment
 
 unsigned long startTime; //Time associated to the reading of the millis() function when the test starts.
 unsigned long runTime; //Placeholder for the millis() function to use for comparison with trigger and ignition time.
@@ -37,7 +38,6 @@ void setup() {
   pinMode(trigger,    INPUT);
 
   PORTB = B00100100;
-  digitalWrite(CO2Pin,HIGH);
 }
 
 //LED colour code
@@ -54,10 +54,8 @@ void unexpectedTrigger() { //Freezes the timing Arduino until the trigger is swi
 
 void manualAbort() { //Disarms the system by resetting all control pins to their initial, safe state.
 
-  digitalWrite(CO2Pin,HIGH);
+  PORTB = B00110101;
   delay(CO2InjTime);
-  digitalWrite(CO2Pin,LOW);
-  
   PORTB = B00100100;
 
   checkRed = LOW;
@@ -68,9 +66,7 @@ void manualAbort() { //Disarms the system by resetting all control pins to their
 void loop() {
 
   PORTB = B00100100;
-  digitalWrite(CO2Pin,HIGH);
-  delay(1000);
-  digitalWrite(CO2Pin,LOW);
+
   while (digitalRead(trigger) == HIGH) { //Timing Arduino can't advance if the trigger is on.
 
     unexpectedTrigger();
