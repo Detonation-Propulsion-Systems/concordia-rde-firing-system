@@ -16,10 +16,13 @@ bool checkYel   = LOW;
 bool checkRed   = LOW;
 
 int buttonDelay  = 250; //Time you have to press a button on the remote for an action to ensue.
+int noiseSuppressionDelay = 500; //Duration to wait before to check rewind state because of igniter noise
+
+
 int triggerTime  = 2000; //Trigger length i.e. length of actuation of the valves.
 int ignitionTime = 1000; //Ignition delay after the start of the trigger.
-int ignitionDuration = 20; //Pulse length for ignition signal. (not used yet)
 int CO2InjTime   = 3000; //Duration CO2 is flushed to inert the sandworm environment
+int ignitionDuration = 20; //Pulse length for ignition signal. (not used yet)
 
 unsigned long startTime; //Time associated to the reading of the millis() function when the test starts.
 unsigned long runTime; //Placeholder for the millis() function to use for comparison with trigger and ignition time.
@@ -138,7 +141,7 @@ void loop() {
         while (runTime - startTime <= triggerTime) {
 
           PORTB = B00101010; //The ignition signal is sent.
-          
+          delay(noiseSuppressionDelay);
           if (digitalRead(rewindPin) == HIGH) {
 
             manualAbort();
