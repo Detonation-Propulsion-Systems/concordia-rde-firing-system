@@ -1,9 +1,10 @@
-int greenLed  = 13;
-int yelLed    = 12;
-int redLed    = 11;
-int valvePin  = 10; //Actuator signal pin.  State Low, i.e. pin bit = 0 == VALVE OPEN AND FLOW
-int bubblePin = 9; //Ignition signal pin.
-int CO2Pin    = 8; //N.O. solenoid for CO2 flow  State Low, i.e. pin bit = 0 == VALVE CLOSED AND NO FLOW
+int greenLed   = 13;
+int yelLed     = 12;
+int redLed     = 11;
+int valvePin   = 10; //Actuator signal pin.  State Low, i.e. pin bit = 0 == VALVE OPEN AND FLOW
+int bubblePin  = 9; //Ignition signal pin.
+int CO2Pin     = 8; //N.O. solenoid for CO2 flow  State Low, i.e. pin bit = 0 == VALVE CLOSED AND NO FLOW
+int N2PurgePin = 7; //N.C. solenoid for N2 purge after a shot.
 
 //Trigger remote pins
 
@@ -19,9 +20,10 @@ int buttonDelay  = 250; //Time you have to press a button on the remote for an a
 int noiseSuppressionDelay = 500; //Duration to wait before to check rewind state because of igniter noise
 
 
-int triggerTime  = 2000; //Trigger length i.e. length of actuation of the valves.
-int ignitionTime = 1000; //Ignition delay after the start of the trigger.
-int CO2InjTime   = 3000; //Duration CO2 is flushed to inert the sandworm environment
+int triggerTime  = 1300; //Trigger length i.e. length of actuation of the valves.
+int ignitionTime = 300; //Ignition delay after the start of the trigger.
+int CO2InjTime   = 10000; //Duration CO2 is flushed to inert the sandworm environment
+int N2PurgeTime  = 2000; //Duration N2 is flushed through the engine after a hot fire
 int ignitionDuration = 20; //Pulse length for ignition signal. (not used yet)
 
 unsigned long startTime; //Time associated to the reading of the millis() function when the test starts.
@@ -35,11 +37,13 @@ void setup() {
   pinMode(bubblePin, OUTPUT);
   pinMode(valvePin,  OUTPUT);
   pinMode(CO2Pin,    OUTPUT);
+  pinMode(N2PurgePin,OUTPUT);
 
   pinMode(forwardPin, INPUT);
   pinMode(rewindPin,  INPUT);
   pinMode(trigger,    INPUT);
 
+  N2PurgePin = HIGH;
   PORTB = B00100100;
 }
 
@@ -57,6 +61,9 @@ void unexpectedTrigger() { //Freezes the timing Arduino until the trigger is swi
 
 void manualAbort() { //Disarms the system by resetting all control pins to their initial, safe state.
 
+  N2PurgePin = LOW;
+  delay(N2PurgeTime);
+  N2PurgePin = HIGH;
   PORTB = B00110101;
   delay(CO2InjTime);
   PORTB = B00100100;
