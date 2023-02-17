@@ -43,7 +43,8 @@ void setup() {
   pinMode(rewindPin,  INPUT);
   pinMode(trigger,    INPUT);
 
-  N2PurgePin = HIGH;
+  //N2PurgePin = LOW;
+  PORTD = B10000000;
   PORTB = B00100100;
 }
 
@@ -60,13 +61,13 @@ void unexpectedTrigger() { //Freezes the timing Arduino until the trigger is swi
 }
 
 void manualAbort() { //Disarms the system by resetting all control pins to their initial, safe state.
-
-  N2PurgePin = LOW;
-  delay(N2PurgeTime);
-  N2PurgePin = HIGH;
-  PORTB = B00110101;
-  delay(CO2InjTime);
-  PORTB = B00100100;
+  PORTB = B00110100; //Close Actuators
+  PORTD = B00000000; //Begin N2 Purge
+  delay(N2PurgeTime); //Purge for N2PurgeTime
+  PORTD = B10000000; //Stop N2 Purge
+  PORTB = B00110101; //Begin CO2 Flush
+  delay(CO2InjTime); //Flush CO2 for CO2InjTime
+  PORTB = B00100100; //Stop CO2 flush
 
   checkRed = LOW;
   checkYel = LOW;
