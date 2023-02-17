@@ -5,6 +5,7 @@ int valvePin   = 10; //Actuator signal pin.  State Low, i.e. pin bit = 0 == VALV
 int bubblePin  = 9; //Ignition signal pin.
 int CO2Pin     = 8; //N.O. solenoid for CO2 flow  State Low, i.e. pin bit = 0 == VALVE CLOSED AND NO FLOW
 int N2PurgePin = 7; //N.C. solenoid for N2 purge after a shot.
+int ScopeTrig  = 6; //This pin used only to trigger oscilloscopes
 
 //Trigger remote pins
 
@@ -149,6 +150,7 @@ void loop() {
         while (runTime - startTime <= triggerTime) {
 
           PORTB = B00101010; //The ignition signal is sent.
+          PORTD = B11000000; //Scope trigger signal is sent
           delay(noiseSuppressionDelay);
           if (digitalRead(rewindPin) == HIGH) {
 
