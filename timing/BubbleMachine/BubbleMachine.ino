@@ -4,8 +4,8 @@ int redLed     = 11;
 int valvePin   = 10; //Actuator signal pin.  State Low, i.e. pin bit = 0 == VALVE OPEN AND FLOW
 int bubblePin  = 9; //Ignition signal pin.
 int CO2Pin     = 8; //N.O. solenoid for CO2 flow  State Low, i.e. pin bit = 0 == VALVE CLOSED AND NO FLOW
-int N2PurgePin = 7; //N.C. solenoid for N2 purge after a shot.
-int ScopeTrig  = 6; //This pin used only to trigger oscilloscopes
+int N2PurgePin = 5; //N.C. solenoid for N2 purge after a shot.
+int scopeTrig  = 6; // Trigger pin for oscilloscopes.
 
 //Trigger remote pins
 
@@ -21,8 +21,8 @@ int buttonDelay  = 250; //Time you have to press a button on the remote for an a
 int noiseSuppressionDelay = 500; //Duration to wait before to check rewind state because of igniter noise
 
 
-int triggerTime  = 1300; //Trigger length i.e. length of actuation of the valves.
-int ignitionTime = 300; //Ignition delay after the start of the trigger.
+int triggerTime  = 1100; //Trigger length i.e. length of actuation of the valves.
+int ignitionTime = 100; //Ignition delay after the start of the trigger.
 int CO2InjTime   = 10000; //Duration CO2 is flushed to inert the sandworm environment
 int N2PurgeTime  = 2000; //Duration N2 is flushed through the engine after a hot fire
 int ignitionDuration = 20; //Pulse length for ignition signal. (not used yet)
@@ -39,13 +39,14 @@ void setup() {
   pinMode(valvePin,  OUTPUT);
   pinMode(CO2Pin,    OUTPUT);
   pinMode(N2PurgePin,OUTPUT);
+  pinMode(scopeTrig, OUTPUT);
 
   pinMode(forwardPin, INPUT);
   pinMode(rewindPin,  INPUT);
   pinMode(trigger,    INPUT);
 
-  //N2PurgePin = LOW;
-  PORTD = B10000000;
+  N2PurgePin = LOW;
+  scopeTrig = LOW;
   PORTB = B00100100;
 }
 
@@ -62,13 +63,14 @@ void unexpectedTrigger() { //Freezes the timing Arduino until the trigger is swi
 }
 
 void manualAbort() { //Disarms the system by resetting all control pins to their initial, safe state.
-  PORTB = B00110100; //Close Actuators
-  PORTD = B00000000; //Begin N2 Purge
-  delay(N2PurgeTime); //Purge for N2PurgeTime
-  PORTD = B10000000; //Stop N2 Purge
-  PORTB = B00110101; //Begin CO2 Flush
-  delay(CO2InjTime); //Flush CO2 for CO2InjTime
-  PORTB = B00100100; //Stop CO2 flush
+
+  scopeTrig = LOW;
+  N2PurgePin = LOW;
+  delay(N2PurgeTime);
+  N2PurgePin = LOW;
+  PORTB = B00110101;
+  delay(CO2InjTime);
+  PORTB = B00100100;
 
   checkRed = LOW;
   checkYel = LOW;
@@ -136,7 +138,7 @@ void loop() {
 
         while (runTime - startTime < ignitionTime) {
 
-          PORTB = B00101000; //The actuators are now open.
+          PORTB = B00101001; //The actuators are now open. CO2 co-flow begins.
           
           if (digitalRead(rewindPin) == HIGH) {
 
@@ -149,8 +151,9 @@ void loop() {
 
         while (runTime - startTime <= triggerTime) {
 
-          PORTB = B00101010; //The ignition signal is sent.
-          PORTD = B11000000; //Scope trigger signal is sent
+          PORTB = B00101011; //The ignition signal is sent.
+          digitalWrite(scopeTrig, HIGH);
+     
           delay(noiseSuppressionDelay);
           if (digitalRead(rewindPin) == HIGH) {
 
