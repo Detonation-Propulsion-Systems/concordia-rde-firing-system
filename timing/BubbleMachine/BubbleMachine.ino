@@ -115,7 +115,7 @@ void loop() {
 
     while (checkYel == HIGH) {
 
-      PORTB = B00001100;
+      PORTB = B00001100; //THIS IS WHERE TO ADD co2 AND n2 PURGE BEFORE A SHOT+
 
       if (digitalRead(trigger) == HIGH) {
 
