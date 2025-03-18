@@ -1,3 +1,8 @@
+//#### WARNING ###//
+// THIS CODE IS MEANT FOR USE WITH ARDUINO UNO R3 EXCLUSIVELY
+// PORT MANIPULATION USED IN THIS CODE IS ONLY COMPATIBLE WITH AVR BASED ARDUINO BOARDS.
+// THIS CODE IS INCOMPATIBLE WITH ARUIDNO R4 MINIMA.
+
 int greenLed   = 13;
 int yelLed     = 12;
 int redLed     = 11;
@@ -29,6 +34,19 @@ int N2PurgeTime  = 2000; //Duration N2 is flushed through the engine after a hot
 
 unsigned long startTime; //Time associated to the reading of the millis() function when the test starts.
 unsigned long runTime; //Placeholder for the millis() function to use for comparison with trigger and ignition time.
+
+//PORT MANIPULAITON//
+//In this code, PORTB and PORTD are controlled using direct port manipulation instead of using digitalWrite().
+//Each digital pin is represented by a single 0 or 1 in an 8 bit number. See details below.
+//PORTB => digital pins 8-13. Corresponding bits: PORTB = [X X 13 12 11 10 9 8]
+//PORTD => digital pins 0-7. Corresponding bits: PORTD = [7 6 5 4 3 2 1 0]
+
+//#### WARNING ####//
+//The relay board used to control the solenoid valves is counterintuitive. 
+//A LOW signal from a digital pin will close the circuit.
+//Entirely cutting power to the board will open all AC circuits.
+//This is why the HIGH and LOW assignments of pins 7, 8 and 10 appear to be reversed.
+
 
 void setup() {
 
@@ -94,6 +112,7 @@ void loop() {
   while (checkGreen == HIGH) {
 
     PORTB = B00010100;
+    PORTD = B10000001; //Revert to N2 closed in case of back button
 
     if (digitalRead(trigger) == HIGH) {
 
@@ -114,7 +133,8 @@ void loop() {
 
     while (checkYel == HIGH) {
 
-      PORTB = B00001100;
+      PORTB = B00001101; //CO2 now flowing before trigger is flipped
+      PORTD = B00000001; //N2 flowing before trigger is flipped
 
       if (digitalRead(trigger) == HIGH) {
 
@@ -137,7 +157,9 @@ void loop() {
 
         while (runTime - startTime < ignitionTime) {
 
+          PORTD = B10000001; //N2 now off
           PORTB = B00101001; //The actuators are now open.
+          //PORTB = B00101000; //The actuators and CO2 are now open.
           
           if (digitalRead(rewindPin) == HIGH) {
 
@@ -151,6 +173,7 @@ void loop() {
         while (runTime - startTime <= triggerTime) {
 
           PORTB = B00101011; //The ignition signal is sent.
+          //PORTB = B00101010; //The ignition signal is sent.
           PORTD = B11000000; //Scope trigger signal is sent
           delay(noiseSuppressionDelay);
           if (digitalRead(rewindPin) == HIGH) {
