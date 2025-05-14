@@ -27,7 +27,7 @@ int noiseSuppressionDelay = 500; //Duration to wait before to check rewind state
 
 
 int triggerTime  = 900; //Trigger length i.e. length of actuation of the valves.
-int ignitionTime = 100; //Ignition delay after the start of the trigger.
+int ignitionTime = 240; //Ignition delay after the start of the trigger.
 int CO2InjTime   = 10000; //Duration CO2 is flushed to inert the sandworm environment
 int N2PurgeTime  = 2000; //Duration N2 is flushed through the engine after a hot fire
 //int ignitionDuration = 20; //Pulse length for ignition signal. (not used yet)
@@ -69,9 +69,10 @@ void setup() {
 
 //LED colour code
 //Green: Safe-initial step
-//Yellow: Intermediate step (also safe)
-//Red: Intermediate step (also safe)
+//Yellow: CO2 flush of exhaust
+//Red: CO2 flush of exhaust + N2 purge of engine.
 //Red + Green: Firing
+//Yellow + Green: N2 purge of engine for 2 seconds, then 10 seconds of CO2 flushingn exhaust.
 //Yellow + Red: Unexpected trigger activation. Firing system frozen until trigger switched off.
 
 void unexpectedTrigger() { //Freezes the timing Arduino until the trigger is switched off.
@@ -111,7 +112,7 @@ void loop() {
 
   while (checkGreen == HIGH) {
 
-    PORTB = B00010100;
+    PORTB = B00010101; //CO2 flush of exhaust begins.
     PORTD = B10000001; //Revert to N2 closed in case of back button
 
     if (digitalRead(trigger) == HIGH) {
